@@ -30,6 +30,8 @@ SSH Key与Github平台连接
 
 ​	c.远程没有分支:` git push origin local_branch:remote_branch`
 
+![image-20220408085949642](assets/image-20220408085949642.png)
+
 ### 分支管理
 
 1.创建并切换到 branch_1 分支：`git checkout -b branch_1`
