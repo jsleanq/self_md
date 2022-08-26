@@ -48,7 +48,7 @@ mysqld --initialize-insecure --user=root
 创建数据库：
 
 ```mysql
-create database if not exists `database_name`  charset=uft8; -- 库名和应用名保持一致，指定编码格式utf8
+create database if not exists `database_name`  charset=utf8; -- 库名和应用名保持一致，指定编码格式utf8
 ```
 
 查看数据库：
@@ -287,24 +287,26 @@ alter table table__name drop foreign key foreign_key_name;
 - 单表查询
 
 ```mysql
- from \ where \ in \ is (not) null \ between...and... -- 常见语句
+from \ where \ in \ is (not) null \ between...and... -- 常见语句
 sum() \ avg() \ count() -- 聚合函数(字段)
-having -- where不和聚合函数配合，having取代 where在 groupby之前使用 having在groupby后使用
-limit \ distinct -- 返回指定的记录数\去重
+having -- 聚合函数作为筛选条件时，只能用having 
+select * from table__name limit 0,2 -- 返回指定的记录数
+select distinct 字段 from table__name -- 去重
+select * if (expr1, expr2, expr3) as 新字段 from table__name; -- expr1表示的是判断条件,expr1的值为真时，则返回值为expr2；当expr1的值为假时，则返回值为expr3
 
 -- 模糊查询 -- 
 select * from table__name where 字段 like 'T%'; -- %代表多个字符
 select * from table__name where 字段 like 'T_'; -- _代表单个字符
 
 select * from table__name order by 字段 desc / asc; -- 排序查找 desc降序 / asc升序
-select * sum() \ avg() \ count() as 新字段 from table__name group by 字段; -- 分组查询 聚合函数
+select * sum() \ avg() \ count() as 新字段 from table__name group by 字段; -- 分组查询 聚合函数 (where ... group by/ group by ... having ... )关键次：每个、各个——分组
 ```
 
 - 多表查询
 
 ```mysql
 -- union --
-select 字段 from table1_name union (all) select 字段 from table2_name; -- 联合查找 all 效率更高，所有记录全部返回，没有all会 自动去重
+select 字段 from table1_name union all select 字段 from table2_name; -- 联合查找 all 效率更高，所有记录全部返回，没有all会 自动去重(没有all和or用法一样)
 
 -- join on --
 inner join 
@@ -328,7 +330,6 @@ using 与 on -- 如果两个表的关联字段名是一样的，就可以使用U
 -- 将一个查询的结果作为另一个查询的数据来源或判断条件 --
 select * from stu where stuId  in (select stuId from eatery where money > 800); -- in为关键词
 select * from stu where exists  (select stuId from eatery where money > 900); -- exists为关键词，只要子查询存在，就把主查询所有的列出来
-
 ```
 
 ###9.事务（Engine=innodb）
@@ -443,6 +444,12 @@ select year(now()) year, month(now()) month, day(now()) day; -- 设置年月日
 select sha("123"); -- 加密字符串，不可逆
 select MD5("123"); -- 加密字符串，可逆
 select ifnull(null,"frank"); -- 用于判断第一个表达式是否为NULL，如果为NULL则返回第二个参数的值，如果不为NULL则返回第一个参数的值
+
+-- case...when... --
+CASE [col_name] WHEN [value1] THEN [result1]…ELSE [default] END
+
+CASE WHEN [expr] THEN [result1]…ELSE [default] END
+
 ```
 
 
@@ -501,7 +508,7 @@ select ifnull(null,"frank"); -- 用于判断第一个表达式是否为NULL，�
 
 - 共享锁（S锁、读锁）：其他操作方**只能**对被操作对象增加读锁，多个对象可以同时读被操作对象，不能写
 - 排他锁（X锁、写锁）：其他操作方**不能**对被操作对象增加**任何**锁，只有加锁操作方能够写数据
-- 更新锁（U锁）：避免死锁情况，属于能转换成X锁的S锁，，处于读状态时，属于S锁，之后写的时候变为X锁
+- 更新锁（U锁）：避免死锁情况，属于能转换成X锁的S锁，处于读状态时，属于S锁，之后写的时候变为X锁
 
 **死锁**
 
